@@ -37,7 +37,7 @@ def plot_model_comparisons(results_df):
         raise ValueError("The input must be a pandas DataFrame.")
 
     # Define required columns for comparison
-    required_columns = {'Model', 'Total Cost(1000)', 'Time Length', 'Summary Score'}
+    required_columns = {'Model', 'Total Embedding Cost(1000)', 'Total LLM Cost(1000)', 'Time Length', 'Score'}
     # Check if required columns are present in the DataFrame
     if not required_columns.issubset(results_df.columns):
         missing_cols = required_columns - set(results_df.columns)
@@ -48,16 +48,25 @@ def plot_model_comparisons(results_df):
     colors = Set1_9.mpl_colors
 
     # Plot Total Cost comparison
-    plt.subplot(1, 3, 1)  # Create subplot 1 out of 3
-    results_df_sort = results_df.sort_values(by='Total Cost(1000)')  # Sort DataFrame by Total Cost
-    plt.bar(results_df_sort['Model'], results_df_sort['Total Cost(1000)'], color=colors[0])  # Plot bar chart
+    plt.subplot(1, 4, 1)  # Create subplot 1 out of 4
+    results_df_sort = results_df.sort_values(by='Total Embedding Cost(1000)')  # Sort DataFrame by Total Cost
+    plt.bar(results_df_sort['Model'], results_df_sort['Total Embedding Cost(1000)'], color=colors[0])  # Plot bar chart
     plt.xlabel('Model')  # Set x-axis label
-    plt.ylabel('Total Cost per 1000 docs')  # Set y-axis label
-    plt.title('Total Cost Comparison (1000 docs)\n (Lowest is best)')  # Set plot title
+    plt.ylabel('Total Cost per 1000 embeddings')  # Set y-axis label
+    plt.title('Total Cost Comparison (1000 embeddings)\n (Lowest is best)')  # Set plot title
+    plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
+
+    # Plot Total Cost comparison
+    plt.subplot(1, 4, 2)  # Create subplot 2 out of 4
+    results_df_sort = results_df.sort_values(by='Total LLM Cost(1000)')  # Sort DataFrame by Total Cost
+    plt.bar(results_df_sort['Model'], results_df_sort['Total LLM Cost(1000)'], color=colors[0])  # Plot bar chart
+    plt.xlabel('Model')  # Set x-axis label
+    plt.ylabel('Total Cost per 1000 llm invocations')  # Set y-axis label
+    plt.title('Total Cost Comparison (1000 invocations)\n (Lowest is best)')  # Set plot title
     plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
 
     # Plot Time Length comparison
-    plt.subplot(1, 3, 2)  # Create subplot 2 out of 3
+    plt.subplot(1, 4, 3)  # Create subplot 3 out of 4
     results_df_sort = results_df.sort_values(by='Time Length')  # Sort DataFrame by Time Length
     plt.bar(results_df_sort['Model'], results_df_sort['Time Length'], color=colors[1])  # Plot bar chart
     plt.xlabel('Model')  # Set x-axis label
@@ -66,13 +75,13 @@ def plot_model_comparisons(results_df):
     plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
 
     # Plot Summary Score comparison
-    plt.subplot(1, 3, 3) # Create subplot 3 out of 3
-    results_df_sort = results_df.sort_values(by='Summary Score', ascending=False)  # Sort DataFrame by Summary Score
-    plt.bar(results_df_sort['Model'], results_df_sort['Summary Score'], color=colors[2])  # Plot bar chart
+    plt.subplot(1, 4, 4) # Create subplot 4 out of 4
+    results_df_sort = results_df.sort_values(by='Score', ascending=False)  # Sort DataFrame by Summary Score
+    plt.bar(results_df_sort['Model'], results_df_sort['Score'], color=colors[2])  # Plot bar chart
     plt.xlabel('Model')  # Set x-axis label
-    plt.ylabel('Summary Score')  # Set y-axis label
-    plt.title('Summary Score Comparison\n (Highest is best)')  # Set plot title
-    plt.ylim(bottom=0, top=5)  # Set y-axis limits
+    plt.ylabel('Score')  # Set y-axis label
+    plt.title('Score Comparison\n (Highest is best)')  # Set plot title
+    plt.ylim(bottom=0, top=1)  # Set y-axis limits
     plt.xticks(rotation=90)  # Rotate x-axis labels for better readability
 
     # Adjust layout for better presentation
@@ -97,13 +106,15 @@ def plot_model_performance_comparisons(results_df):
         raise ValueError("The input must be a pandas DataFrame.")
         
     # Define required columns for comparison (adjust according to actual data)
-    required_columns = {'model_name', 'model_completeness_score', 'model_flow_score',
-                        'model_structure_score', 'model_conciseness_score',
-                        'model_clarity_score', 'model_objectivity_score',
-                        'model_tone_score', 'model_task_score'}
+    required_columns = {'model_name', 'faithfulness', 'answer_relevancy',
+                        'context_precision', 'context_recall',
+                        'context_entity_recall', 'answer_similarity',
+                        'answer_correctness', 'harmfulness', 'maliciousness', 
+                        'coherence', 'correctness', 'conciseness'}
     
     # Check if required columns are present in the DataFrame
     if not required_columns.issubset(results_df.columns):
+        print(results_df)
         missing_cols = required_columns - set(results_df.columns)
         raise ValueError(f"Missing required columns in the DataFrame: {missing_cols}")
     
@@ -123,7 +134,7 @@ def plot_model_performance_comparisons(results_df):
     for i, model in enumerate(models):
         positions = np.arange(len(metrics)) + i * (bar_width + 0.02)  # Positioning each group of bars
         
-        scores = results_df[results_df['model_name'] == model][metrics].values.flatten().astype(int)
+        scores = results_df[results_df['model_name'] == model][metrics].values.flatten().astype(float)
         rects = ax.bar(positions, scores, bar_width, label=model, color=colors_list[i % len(colors_list)])
         ax.bar_label(rects)
         

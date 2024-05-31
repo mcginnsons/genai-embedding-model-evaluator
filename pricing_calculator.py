@@ -11,6 +11,10 @@ def calculate_input_price(token_number, model_id):
     """
     # Dictionary containing prices per 1000 tokens for different models
     model_input_token_prices = {
+        'amazon.titan-embed-text-v1': 0.0001,
+        'amazon.titan-embed-text-v2:0': 0.00002,
+        'cohere.embed-english-v3': 0.0001,
+        'cohere.embed-multilingual-v3': 0.0001,
         'amazon.titan-text-lite-v1': 0.0003,
         'amazon.titan-text-express-v1': 0.0075,
         'ai21.j2-mid-v1': 0.0125,
@@ -29,8 +33,6 @@ def calculate_input_price(token_number, model_id):
         'mistral.mistral-large-2402-v1:0': 0.008,
         'mistral.mistral-7b-instruct-v0:2': 0.00015,
         'mistral.mixtral-8x7b-instruct-v0:1': 0.00045,
-        'gpt-4-0125-preview': 0.01,
-        'gpt-4-32k': 0.06
     }
 
     # Check if the provided model_id exists in our dictionary
@@ -44,8 +46,7 @@ def calculate_input_price(token_number, model_id):
     else:
         # Return 0 if the model_id is not found in the dictionary
         return 0
-
-
+    
 def calculate_output_price(token_number, model_id):
     """
     Calculate the cost for a given number of output tokens based on the model used.

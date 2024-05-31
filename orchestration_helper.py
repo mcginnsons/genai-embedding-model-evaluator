@@ -3,32 +3,44 @@ class OrchestrationHelper:
     This class is used to store the results of the orchestration, and format all the results.
     """
 
-    def __init__(self, model, time_length, character_count, char_process_time, input_cost, output_cost, total_cost, total_cost_1000,
-                 final_score, summary_invoke_response, final_summary):
+    def __init__(self, model, time_length, embedding_character_count, llm_character_count, char_process_time, input_embedding_cost,
+                 output_embedding_cost, total_embedding_cost, total_embedding_cost_1000, input_llm_cost,
+                 output_llm_cost, total_llm_cost, total_llm_cost_1000,
+                 final_score, answers_response, final_summary):
         """
         Initializes an instance of the OrchestrationHelper class.
         :param model: The model being evaluated.
-        :param time_length: The length of time it took to perform a summarization.
-        :param character_count: The amount of characters of the source text.
+        :param time_length: The length of time it took to perform a retrieve and generate.
+        :param embedding_character_count: The amount of characters going into the embedding model.
+        :param llm_character_count: The amount of characters going into the llm.
         :param char_process_time: How long it took to process a character.
-        :param input_cost: The cost of the input tokens.
-        :param output_cost: The cost of the output tokens.
-        :param total_cost: The cost of the input tokens and output tokens.
-        :param total_cost_1000: The total cost of the job per 1000 invocations.
-        :param final_score: The final score of the models summary performance.
-        :param summary_invoke_response: The summary provided from the model being tested.
+        :param input_embedding_cost: The cost of the input embeddings.
+        :param output_embedding_cost: The cost of the output embeddings.
+        :param total_embedding_cost: The total cost of the embeddings.
+        :param total_embedding_cost_1000: The total cost of the embeddings in 1000s.
+        :param input_llm_cost: The cost of the input LLM.
+        :param output_llm_cost: The cost of the output LLM.
+        :param total_llm_cost: The total cost of the LLM.
+        :param total_llm_cost_1000: The total cost of the LLM in 1000s.
+        :param final_score: The final score of the models performance.
+        :param answers_response: The answers provided from the model being tested.
         :param final_summary: The final summary of the models overall performance.
         """
         self.model = model
         self.time_length = time_length
-        self.character_count = character_count
+        self.embedding_character_count = embedding_character_count
+        self.llm_character_count = llm_character_count
         self.char_process_time = char_process_time
-        self.input_cost = input_cost
-        self.output_cost = output_cost
-        self.total_cost = total_cost
-        self.total_cost_1000 = total_cost_1000
+        self.input_embedding_cost = input_embedding_cost
+        self.output_embedding_cost = output_embedding_cost
+        self.total_embedding_cost = total_embedding_cost
+        self.total_embedding_cost_1000 = total_embedding_cost_1000
+        self.input_llm_cost = input_llm_cost
+        self.output_llm_cost = output_llm_cost
+        self.total_llm_cost = total_llm_cost
+        self.total_llm_cost_1000 = total_llm_cost_1000
         self.final_score = final_score
-        self.summary_invoke_response = summary_invoke_response
+        self.summary_invoke_response = answers_response
         self.final_summary = final_summary
 
     def format(self):
@@ -41,13 +53,18 @@ class OrchestrationHelper:
         result = {
                 'Model': self.model,
                 'Time Length': self.time_length,
-                'Character Count': self.character_count,
+                'Embedding Character Count': self.embedding_character_count,
+                'LLM Character Count': self.llm_character_count,
                 'Char Process Time': self.char_process_time,
-                'Input Cost': self.input_cost,
-                'Output Cost': self.output_cost,
-                'Total Cost': self.total_cost,
-                'Total Cost(1000)': self.total_cost_1000,
-                'Summary Score': self.final_score,
+                'Input Embedding Cost': self.input_embedding_cost, 
+                'Output Embedding Cost': self.output_embedding_cost,
+                'Total Embedding Cost': self.total_embedding_cost,
+                'Total Embedding Cost(1000)': self.total_embedding_cost_1000,
+                'Input LLM Cost': self.input_llm_cost,
+                'Output LLM Cost': self.output_llm_cost,
+                'Total LLM Cost': self.total_llm_cost,
+                'Total LLM Cost(1000)': self.total_llm_cost_1000,
+                'Score': self.final_score,
                 'Invoke Response': self.summary_invoke_response
             }
         # returning the final dictionary
