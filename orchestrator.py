@@ -16,7 +16,6 @@ from langchain_aws.embeddings import BedrockEmbeddings
 from langchain_aws.retrievers.bedrock import AmazonKnowledgeBasesRetriever
 from langchain.chains import RetrievalQA
 from datasets import Dataset
-## TODO add langchain, langchain_aws, datasets and ragas to requirements.txt
 from ragas import evaluate
 from ragas.metrics import (
     faithfulness, 

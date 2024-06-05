@@ -1,11 +1,8 @@
-from pypdf import PdfReader
 from dotenv import load_dotenv
 import boto3
-import json
 import os
 from botocore.exceptions import ClientError
 import logging
-import streamlit as st
 
 # Setting up a logger with default settings
 logger = logging.getLogger()

@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 import logging
 import json
 import os
-import asyncio
-import aioboto3
 import re
 
 # Setting up a logger with default settings
@@ -14,108 +12,6 @@ logger.setLevel(logging.INFO)
 load_dotenv()
 # Setting up the default boto3 session with a specified AWS profile name
 boto3.setup_default_session(profile_name=os.getenv("profile_name"))
-
-async def get_bedrock_client():
-    """
-    Asynchronously creates and returns a client for interacting with the Bedrock Runtime service.
-
-    This function uses aioboto3, an asynchronous version of the AWS SDK for Python (Boto3), to create a client
-    for the Bedrock Runtime service. It retrieves the AWS profile name and region name from environment variables.
-
-    Returns:
-        aioboto3.client: A client object for interacting with the Bedrock Runtime service.
-    """
-    
-    if os.getenv("profile_name") is None:
-        os.environ["profile_name"] = "default"
-        os.environ["region_name"] = "us-east-1"
-    
-    # Create an aioboto3 session using the specified profile name
-    session = aioboto3.Session(profile_name=os.getenv("profile_name"))
-    # Asynchronously create a client for the Bedrock Runtime service
-    async with session.client(
-            service_name='bedrock-runtime',
-            region_name=os.getenv("region_name"),
-
-    ) as client:
-        return client
-
-
-async def model_execution(client, user_prompt, system_prompt):
-    """
-    Asynchronously executes a model using specified prompts, provided by each evaluation function
-    and returns the score and evaluation summary.
-    :param client: An aioboto3 client object for invoking Amazon Bedrock and the specific model.
-    :param user_prompt: The user prompt used during model execution.
-    :param system_prompt: The system prompt for the model execution and unique to the specific evaluation function.
-    :return: A tuple containing the score of the evaluation and evaluation summary.
-    """
-    # Construct the content payload with user prompt
-    content = [{
-        "type": "text",
-        "text": user_prompt
-    }]
-    # Construct the prompt object with model execution parameters, formatted for the Claue 3 Messages API
-    prompt = {
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 10000,
-        "temperature": 0,
-        "system": system_prompt,
-        "messages": [
-            {
-                "role": "user",
-                "content": content
-            }
-        ]
-    }
-    # Convert the prompt object to a JSON string
-    prompt = json.dumps(prompt)
-    # Invoke the model asynchronously with the provided prompt
-    response = await client.invoke_model(
-        body=prompt,
-        modelId="anthropic.claude-3-sonnet-20240229-v1:0",
-        accept="application/json",
-        contentType="application/json"
-    )
-    # Read the response body and parse it as JSON
-    response_body = await response['body'].read()
-    response_json = json.loads(response_body)
-    # Extract the output text from the response
-    output_text = response_json['content'][0]['text']
-    # Extract score and evaluation summary from the output text
-    score = parse_xml(output_text, "score").strip()
-    evaluation_summary = parse_xml(output_text, "thoughts").strip()
-    # Return the score and evaluation summary
-    return score, evaluation_summary
-
-
-def parse_xml(xml, tag):
-    """
-    Parse XML-like content to extract the value associated with a specific tag, handling one level of nested same tags.
-    :param xml: The XML-like content as a string.
-    :param tag: The tag whose value needs to be extracted.
-    :return: The value associated with the specified tag or an empty string if the tag is not found.
-    """
-    try:
-        # Construct a regex pattern to find content inside the specified tag,
-        # This pattern attempts to skip over any nested tags of the same type.
-        pattern = f'<{tag}>(?:<[^/]*?>.*?</[^>]*?>|[^<]*?)+</{tag}>'
-        # Find the outermost tags first
-        matches = re.findall(pattern, xml, re.DOTALL)
-        if matches:
-            # If there are matches, strip the outermost tag and find again to handle nested same tags
-            clean_matches = []
-            for match in matches:
-                # Strip the outermost tag
-                content = re.sub(f'^<{tag}>|</{tag}>$', '', match, flags=re.DOTALL)
-                # Append cleaned content
-                clean_matches.append(content)
-            return " ".join(clean_matches).strip()
-        return ""
-    except re.error as e:
-        # Return an empty string if a regex error occurs
-        print(f"Regex error: {e}")
-        return ""
 
 def evaluate_model_output(result, knowledge_base, contexts):
     """

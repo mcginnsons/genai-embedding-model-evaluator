@@ -30,7 +30,10 @@ MANIFEST
 *.csv
 pdfs/*
 reports/*
-
+venv/
+venv1/
+venv2/
+venv3/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
